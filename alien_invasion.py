@@ -299,6 +299,6 @@ class AlienInvasion:
 
 
 if __name__ == '__main__':
-    # Сворити екземпляр гри і запуск 
+    # Сворити екземпляр гри і запуск
     ai = AlienInvasion()
     ai.run_game()
