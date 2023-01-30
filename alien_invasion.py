@@ -19,6 +19,12 @@ class AlienInvasion:
         pygame.init()
         self.settings = Settings()
 
+        # Загрузка фонової музики і вистрілів і зіткнення
+        pygame.mixer.music.load('sounds/fon.ogg')
+        self.shot_sound = pygame.mixer.Sound('sounds/shot_ognennyiy_shar.ogg')
+        self.ship_explosion = pygame.mixer.Sound('sounds/ship_explosion.ogg')
+        self.sound_loss = pygame.mixer.Sound('sounds/sound_loss.ogg')
+
         # Запуск у пiв екран
         self.screen = pygame.display.set_mode((
             self.settings.screen_width,
@@ -50,8 +56,7 @@ class AlienInvasion:
         # self.bd_color = (230, 230, 230)
 
     def run_game(self):
-        '''Розпочати головний цикл гри'''
-
+        """Розпочати головний цикл гри"""
         while True:
             self._check_events()
             if self.stats.game_active:
@@ -80,6 +85,9 @@ class AlienInvasion:
         """Розпочати гру після натиску на кнопку"""
         button_clicked = self.play_button.rect.collidepoint(mouse_pos)
         if button_clicked and not self.stats.game_active:
+            # Запустити фонову музику
+            pygame.mixer.music.play(-1)
+
             # Аналювати статистику i налаштування швидкості
             self.settings.initialize_dynamic_settings()
             self.stats.reset_stats()
@@ -102,6 +110,9 @@ class AlienInvasion:
     def _start_play_button(self):
         """Розпочати гру після натиску на кнопку Enter"""
         if not self.stats.game_active:
+            # Запустити фонову музику
+            pygame.mixer.music.play(-1)
+
             # Аналювати статистику i налаштування швидкості
             self.settings.initialize_dynamic_settings()
             self.stats.reset_stats()
@@ -134,6 +145,7 @@ class AlienInvasion:
             self.ship.moving_up = True
         elif event.key == pygame.K_SPACE:
             self._fire_bullet()
+            self.shot_sound.play()
         elif event.key == pygame.K_RETURN:
             self._start_play_button()
         elif event.key == pygame.K_q:
@@ -249,6 +261,10 @@ class AlienInvasion:
     def _ship_hit(self):
         """Реагувати на зіткнення корабля"""
         if self.stats.ships_left >= 2:
+            # Звук зіткнення і крик
+            self.ship_explosion.play()
+            self.sound_loss.play()
+
             # Зменшити ships_left та оновити табло
             self.stats.ships_left -= 1
             self.sb.prep_ships()
@@ -264,6 +280,8 @@ class AlienInvasion:
             self.sb.prep_ships()
             self.stats.game_active = False
             pygame.mouse.set_visible(True)
+            # Зупинити фонову музику коли 0 житів
+            pygame.mixer.music.pause()
 
     def _check_aliens_bottom(self):
         """Перівітити чи aliens dont tach bottom screen"""
